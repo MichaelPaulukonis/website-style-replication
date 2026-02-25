@@ -70,17 +70,23 @@ function FeaturedCard({
     const overlay = overlayRef.current
     const text = textRef.current
     if (!overlay || !text) return
+
+    const overlayTransform = getComputedStyle(overlay).transform
+
     overlay.getAnimations().forEach((a) => a.cancel())
     text.getAnimations().forEach((a) => a.cancel())
 
+    text.style.opacity = "0"
+
     overlay.style.transformOrigin = wipe.origin
+    const startTransform = overlayTransform === "none" ? wipe.from : overlayTransform
     overlay.animate(
-      [{ transform: wipe.from }, { transform: wipe.to }],
+      [{ transform: startTransform }, { transform: wipe.to }],
       { duration: 400, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" }
     )
     text.animate(
       [{ opacity: "0", transform: "translateY(8px)" }, { opacity: "1", transform: "translateY(0)" }],
-      { duration: 280, easing: "ease-out", fill: "forwards", delay: 140 }
+      { duration: 280, easing: "ease-out", fill: "forwards", delay: 200 }
     )
     setIsHovered(true)
   }, [wipe])
@@ -89,16 +95,25 @@ function FeaturedCard({
     const overlay = overlayRef.current
     const text = textRef.current
     if (!overlay || !text) return
+
+    const overlayTransform = getComputedStyle(overlay).transform
+    const textOpacity = getComputedStyle(text).opacity
+
     overlay.getAnimations().forEach((a) => a.cancel())
     text.getAnimations().forEach((a) => a.cancel())
 
-    text.animate(
-      [{ opacity: "1" }, { opacity: "0" }],
+    const fadeOut = text.animate(
+      [{ opacity: textOpacity }, { opacity: "0" }],
       { duration: 150, easing: "ease-in", fill: "forwards" }
     )
+    fadeOut.onfinish = () => {
+      text.style.opacity = "0"
+    }
+
     overlay.style.transformOrigin = getOppositeOrigin(project.wipe)
+    const startTransform = overlayTransform === "none" ? wipe.to : overlayTransform
     overlay.animate(
-      [{ transform: wipe.to }, { transform: wipe.from }],
+      [{ transform: startTransform }, { transform: wipe.from }],
       { duration: 400, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards", delay: 80 }
     )
     setIsHovered(false)

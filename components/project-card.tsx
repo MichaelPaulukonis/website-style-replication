@@ -79,21 +79,34 @@ export function ProjectCard({ project }: { project: Project }) {
     const text = textRef.current
     if (!overlay || !text) return
 
-    // Cancel any running animations
+    // Snapshot current computed values before cancelling
+    const overlayTransform = getComputedStyle(overlay).transform
+    const textOpacity = getComputedStyle(text).opacity
+    const textTransform = getComputedStyle(text).transform
+
+    // Cancel running animations
     overlay.getAnimations().forEach((a) => a.cancel())
     text.getAnimations().forEach((a) => a.cancel())
 
-    // Wipe IN: overlay scales from 0 to 1 from the wipe direction
+    // Ensure text starts hidden (use snapshot if mid-animation)
+    text.style.opacity = "0"
+
+    // Wipe IN: overlay scales from current state to full
     overlay.style.transformOrigin = wipe.origin
+    const startTransform = overlayTransform === "none" ? wipe.enterFrom : overlayTransform
     overlay.animate(
-      [{ transform: wipe.enterFrom }, { transform: wipe.enterTo }],
+      [{ transform: startTransform }, { transform: wipe.enterTo }],
       { duration: 350, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" }
     )
 
-    // Text fades in slightly delayed
+    // Text fades in after overlay is mostly done
+    const startOpacity = Math.min(parseFloat(textOpacity) || 0, 0.3)
     text.animate(
-      [{ opacity: "0", transform: "translateY(6px)" }, { opacity: "1", transform: "translateY(0)" }],
-      { duration: 250, easing: "ease-out", fill: "forwards", delay: 120 }
+      [
+        { opacity: String(startOpacity), transform: "translateY(6px)" },
+        { opacity: "1", transform: "translateY(0)" },
+      ],
+      { duration: 250, easing: "ease-out", fill: "forwards", delay: 180 }
     )
 
     setIsHovered(true)
@@ -104,20 +117,28 @@ export function ProjectCard({ project }: { project: Project }) {
     const text = textRef.current
     if (!overlay || !text) return
 
+    // Snapshot current state
+    const overlayTransform = getComputedStyle(overlay).transform
+    const textOpacity = getComputedStyle(text).opacity
+
     overlay.getAnimations().forEach((a) => a.cancel())
     text.getAnimations().forEach((a) => a.cancel())
 
-    // Text fades out first
-    text.animate(
-      [{ opacity: "1" }, { opacity: "0" }],
+    // Text fades out from current opacity
+    const fadeOut = text.animate(
+      [{ opacity: textOpacity }, { opacity: "0" }],
       { duration: 150, easing: "ease-in", fill: "forwards" }
     )
+    fadeOut.onfinish = () => {
+      text.style.opacity = "0"
+    }
 
-    // Wipe OUT: overlay scales from 1 to 0 from the OPPOSITE direction
+    // Wipe OUT from current state in the opposite direction
     const oppositeOrigin = getOppositeOrigin(project.wipe)
     overlay.style.transformOrigin = oppositeOrigin
+    const startTransform = overlayTransform === "none" ? wipe.enterTo : overlayTransform
     overlay.animate(
-      [{ transform: wipe.enterTo }, { transform: wipe.exitTo }],
+      [{ transform: startTransform }, { transform: wipe.exitTo }],
       { duration: 350, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards", delay: 80 }
     )
 
