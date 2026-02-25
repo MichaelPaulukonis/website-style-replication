@@ -114,3 +114,9 @@ html {
 ::selection {
   background-color: oklch(0.62 0.22 22 / 0.3);
 }
+
+/* Subtle dot-grid pattern for media placeholder areas */
+.media-dots {
+  background-image: radial-gradient(circle, oklch(0.8 0 0 / 0.35) 1px, transparent 1px);
+  background-size: 20px 20px;
+}

@@ -1,3 +1,5 @@
+export type WipeDirection = "left" | "right" | "up" | "down"
+
 export type Project = {
   slug: string
   title: string
@@ -5,6 +7,8 @@ export type Project = {
   tags: string[]
   color: "coral" | "blue" | "teal" | "warm" | "dark"
   url?: string
+  emoji: string
+  wipe: WipeDirection
 }
 
 export const projects: Project[] = [
@@ -16,6 +20,8 @@ export const projects: Project[] = [
     tags: ["generative", "color", "interactive"],
     color: "coral",
     url: "https://michaelpaulukonis.github.io/duo-chrome/",
+    emoji: "\u{1F308}",
+    wipe: "left",
   },
   {
     slug: "web-sketches",
@@ -25,6 +31,8 @@ export const projects: Project[] = [
     tags: ["p5.js", "creative-coding", "experiments"],
     color: "blue",
     url: "https://michaelpaulukonis.github.io/web-sketches/",
+    emoji: "\u{1F3A8}",
+    wipe: "right",
   },
   {
     slug: "computational-collage",
@@ -34,6 +42,8 @@ export const projects: Project[] = [
     tags: ["collage", "generative", "images"],
     color: "teal",
     url: "https://michaelpaulukonis.github.io/computational-collage/",
+    emoji: "\u{1F5BC}\uFE0F",
+    wipe: "up",
   },
   {
     slug: "poetry-generators",
@@ -43,6 +53,8 @@ export const projects: Project[] = [
     tags: ["text", "generative", "NLP"],
     color: "warm",
     url: "https://michaelpaulukonis.github.io/poetry-generators/",
+    emoji: "\u{1F4DD}",
+    wipe: "down",
   },
   {
     slug: "genzify",
@@ -51,6 +63,8 @@ export const projects: Project[] = [
     tags: ["text", "humor", "transformation"],
     color: "coral",
     url: "https://michaelpaulukonis.github.io/genzify/",
+    emoji: "\u{1F4AC}",
+    wipe: "left",
   },
   {
     slug: "crude-collage-painter",
@@ -60,6 +74,8 @@ export const projects: Project[] = [
     tags: ["collage", "interactive", "canvas"],
     color: "dark",
     url: "https://michaelpaulukonis.github.io/crude-collage-painter/",
+    emoji: "\u{1F58C}\uFE0F",
+    wipe: "right",
   },
   {
     slug: "dragline",
@@ -69,6 +85,8 @@ export const projects: Project[] = [
     tags: ["drawing", "interactive", "canvas"],
     color: "blue",
     url: "https://michaelpaulukonis.github.io/dragline/",
+    emoji: "\u270D\uFE0F",
+    wipe: "up",
   },
   {
     slug: "fairy-tale-generator",
@@ -78,6 +96,8 @@ export const projects: Project[] = [
     tags: ["text", "narrative", "generative"],
     color: "teal",
     url: "https://michaelpaulukonis.github.io/fairy-tale-generator/",
+    emoji: "\u{1F9DA}",
+    wipe: "down",
   },
   {
     slug: "nova-zombie-simulator",
@@ -86,6 +106,8 @@ export const projects: Project[] = [
     tags: ["simulation", "game", "canvas"],
     color: "dark",
     url: "https://michaelpaulukonis.github.io/nova-zombie-simulator/",
+    emoji: "\u{1F9DF}",
+    wipe: "left",
   },
   {
     slug: "list-mania",
@@ -94,6 +116,8 @@ export const projects: Project[] = [
     tags: ["text", "lists", "interactive"],
     color: "warm",
     url: "https://michaelpaulukonis.github.io/list-mania/",
+    emoji: "\u{1F4CB}",
+    wipe: "right",
   },
   {
     slug: "poetical-bot",
@@ -102,6 +126,8 @@ export const projects: Project[] = [
     tags: ["bot", "poetry", "generative"],
     color: "coral",
     url: "https://michaelpaulukonis.github.io/poetical-bot/",
+    emoji: "\u{1F916}",
+    wipe: "up",
   },
   {
     slug: "obscurus",
@@ -110,6 +136,8 @@ export const projects: Project[] = [
     tags: ["text", "experimental", "visual"],
     color: "dark",
     url: "https://michaelpaulukonis.github.io/obscurus/",
+    emoji: "\u{1F576}\uFE0F",
+    wipe: "down",
   },
   {
     slug: "imagetexter",
@@ -119,6 +147,8 @@ export const projects: Project[] = [
     tags: ["image", "text", "canvas"],
     color: "blue",
     url: "https://michaelpaulukonis.github.io/imagetexter/",
+    emoji: "\u{1F524}",
+    wipe: "left",
   },
   {
     slug: "polychrometext",
@@ -126,6 +156,9 @@ export const projects: Project[] = [
     description: "Multi-colored text rendering explorations in the browser.",
     tags: ["text", "color", "canvas"],
     color: "teal",
+    url: "https://michaelpaulukonis.github.io/polychrometext/",
+    emoji: "\u{1FA78}",
+    wipe: "right",
     url: "https://michaelpaulukonis.github.io/polychrometext/",
   },
 ]

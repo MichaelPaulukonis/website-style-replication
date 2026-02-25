@@ -1,47 +1,196 @@
-import Link from "next/link"
-import type { Project } from "@/lib/data"
+"use client"
 
-const colorClasses: Record<Project["color"], string> = {
-  coral: "bg-surface-coral text-primary-foreground",
-  blue: "bg-surface-blue text-secondary-foreground",
-  teal: "bg-surface-teal text-accent-foreground",
-  warm: "bg-surface-warm text-foreground",
-  dark: "bg-surface-dark text-primary-foreground",
+import Link from "next/link"
+import { useRef, useState, useCallback } from "react"
+import type { Project, WipeDirection } from "@/lib/data"
+
+const colorBgClasses: Record<Project["color"], string> = {
+  coral: "bg-surface-coral",
+  blue: "bg-surface-blue",
+  teal: "bg-surface-teal",
+  warm: "bg-surface-warm",
+  dark: "bg-surface-dark",
+}
+
+const colorTextClasses: Record<Project["color"], string> = {
+  coral: "text-primary-foreground",
+  blue: "text-secondary-foreground",
+  teal: "text-accent-foreground",
+  warm: "text-foreground",
+  dark: "text-primary-foreground",
+}
+
+/** Maps wipe direction to the CSS transform origin and translate values. */
+function getWipeTransforms(dir: WipeDirection) {
+  switch (dir) {
+    case "left":
+      return {
+        origin: "left center",
+        enterFrom: "scaleX(0)",
+        enterTo: "scaleX(1)",
+        exitTo: "scaleX(0)",
+      }
+    case "right":
+      return {
+        origin: "right center",
+        enterFrom: "scaleX(0)",
+        enterTo: "scaleX(1)",
+        exitTo: "scaleX(0)",
+      }
+    case "up":
+      return {
+        origin: "center top",
+        enterFrom: "scaleY(0)",
+        enterTo: "scaleY(1)",
+        exitTo: "scaleY(0)",
+      }
+    case "down":
+      return {
+        origin: "center bottom",
+        enterFrom: "scaleY(0)",
+        enterTo: "scaleY(1)",
+        exitTo: "scaleY(0)",
+      }
+  }
+}
+
+function getOppositeOrigin(dir: WipeDirection) {
+  switch (dir) {
+    case "left":
+      return "right center"
+    case "right":
+      return "left center"
+    case "up":
+      return "center bottom"
+    case "down":
+      return "center top"
+  }
 }
 
 export function ProjectCard({ project }: { project: Project }) {
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+  const [isHovered, setIsHovered] = useState(false)
+
+  const wipe = getWipeTransforms(project.wipe)
+
+  const handleMouseEnter = useCallback(() => {
+    const overlay = overlayRef.current
+    const text = textRef.current
+    if (!overlay || !text) return
+
+    // Cancel any running animations
+    overlay.getAnimations().forEach((a) => a.cancel())
+    text.getAnimations().forEach((a) => a.cancel())
+
+    // Wipe IN: overlay scales from 0 to 1 from the wipe direction
+    overlay.style.transformOrigin = wipe.origin
+    overlay.animate(
+      [{ transform: wipe.enterFrom }, { transform: wipe.enterTo }],
+      { duration: 350, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" }
+    )
+
+    // Text fades in slightly delayed
+    text.animate(
+      [{ opacity: "0", transform: "translateY(6px)" }, { opacity: "1", transform: "translateY(0)" }],
+      { duration: 250, easing: "ease-out", fill: "forwards", delay: 120 }
+    )
+
+    setIsHovered(true)
+  }, [wipe])
+
+  const handleMouseLeave = useCallback(() => {
+    const overlay = overlayRef.current
+    const text = textRef.current
+    if (!overlay || !text) return
+
+    overlay.getAnimations().forEach((a) => a.cancel())
+    text.getAnimations().forEach((a) => a.cancel())
+
+    // Text fades out first
+    text.animate(
+      [{ opacity: "1" }, { opacity: "0" }],
+      { duration: 150, easing: "ease-in", fill: "forwards" }
+    )
+
+    // Wipe OUT: overlay scales from 1 to 0 from the OPPOSITE direction
+    const oppositeOrigin = getOppositeOrigin(project.wipe)
+    overlay.style.transformOrigin = oppositeOrigin
+    overlay.animate(
+      [{ transform: wipe.enterTo }, { transform: wipe.exitTo }],
+      { duration: 350, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards", delay: 80 }
+    )
+
+    setIsHovered(false)
+  }, [wipe, project.wipe])
+
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-lg transition-transform duration-300 hover:-translate-y-1"
+      className="group relative flex flex-col overflow-hidden rounded-lg"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* Media placeholder area */}
-      <div
-        className={`flex aspect-[4/3] items-center justify-center ${colorClasses[project.color]}`}
-      >
-        <span className="px-4 text-center text-2xl font-bold tracking-tight opacity-60 md:text-3xl">
-          {project.title}
-        </span>
+      {/* Media area (emoji fallback) */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted media-dots">
+        {/* Emoji / media layer -- always visible underneath */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span
+            className="text-7xl leading-none md:text-8xl select-none transition-transform duration-300"
+            style={{ transform: isHovered ? "scale(1.1)" : "scale(1)" }}
+            role="img"
+            aria-label={project.title}
+          >
+            {project.emoji}
+          </span>
+        </div>
+
+        {/* Colored overlay that wipes in on hover */}
+        <div
+          ref={overlayRef}
+          className={`absolute inset-0 ${colorBgClasses[project.color]}`}
+          style={{ transform: wipe.enterFrom, transformOrigin: wipe.origin }}
+        />
+
+        {/* Text content that appears on the overlay */}
+        <div
+          ref={textRef}
+          className={`absolute inset-0 flex flex-col justify-end p-5 md:p-6 ${colorTextClasses[project.color]}`}
+          style={{ opacity: 0 }}
+        >
+          <h3 className="mb-1.5 text-lg font-bold tracking-tight md:text-xl">
+            {project.title}
+          </h3>
+          <p className="line-clamp-3 text-sm leading-relaxed opacity-90">
+            {project.description}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {project.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border border-current/20 px-2 py-0.5 text-xs font-medium opacity-80"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Info area */}
-      <div className="flex flex-1 flex-col gap-3 bg-card p-5">
-        <h3 className="text-lg font-bold text-card-foreground">
+      {/* Minimal label below the card */}
+      <div className="flex items-center gap-2 bg-card px-4 py-3">
+        <span className="text-sm font-semibold text-card-foreground">
           {project.title}
-        </h3>
-        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-          {project.description}
-        </p>
-        <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        </span>
+        <svg
+          className="ml-auto h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
       </div>
     </Link>
   )
