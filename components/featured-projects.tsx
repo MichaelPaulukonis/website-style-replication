@@ -173,7 +173,7 @@ function FeaturedCard({
 
 export function FeaturedProjects() {
   const featured = featuredSlugs
-    .map((slug) => projects.find((p) => p.slug === slug)!)
+    .map((slug) => projects.find((p) => p.slug === slug))
     .filter(Boolean)
 
   return (
