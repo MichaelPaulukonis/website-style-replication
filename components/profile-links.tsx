@@ -1,5 +1,5 @@
 import { profileLinks } from "@/lib/data"
-import { Github, Linkedin, CloudSun } from "lucide-react"
+import { Github, Linkedin } from "lucide-react"
 
 function BlueskyIcon({ className }: { className?: string }) {
   return (

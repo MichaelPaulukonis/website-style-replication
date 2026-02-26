@@ -45,9 +45,9 @@ export async function generateMetadata({
 export default async function ProjectPage({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: { slug: string }
 }) {
-  const { slug } = await params
+  const { slug } = params
   const project = projects.find((p) => p.slug === slug)
 
   if (!project) {
@@ -113,10 +113,10 @@ export default async function ProjectPage({
                 About this project
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-                {project.description} This project explores the boundaries of
-                code as a creative tool, combining algorithmic thinking with
-                aesthetic sensibility. Each interaction reveals new possibilities
-                in the space between intention and emergence.
+                {project.description}
+              </p>
+              <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+                This project explores the boundaries of code as a creative tool, combining algorithmic thinking with aesthetic sensibility. Each interaction reveals new possibilities in the space between intention and emergence.
               </p>
 
               {project.url && (
